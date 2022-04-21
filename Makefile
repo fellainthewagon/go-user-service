@@ -1,5 +1,5 @@
 format:
-	go fmt cmd/app.go
+	go fmt ./...
 
 run:
 	go run cmd/app.go
