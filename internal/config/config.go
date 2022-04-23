@@ -14,6 +14,16 @@ type Config struct {
 		BindIp string `yaml:"bind_ip"`
 		Port   string `yaml:"port"`
 	} `yaml:"listen"`
+	MongoDB struct {
+		Username   string `yaml:"username"`
+		Password   string `yaml:"password"`
+		Database   string `yaml:"database"`
+		Collection string `yaml:"collection"`
+		AuthDB     string `yaml:"auth_db"`
+		Host       string `yaml:"host"`
+		Port       string `yaml:"port"`
+		AtlasURI   string `yaml:"atlas_uri"`
+	} `yaml:"mongodb"`
 }
 
 var instance *Config // singleton
