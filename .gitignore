@@ -1,0 +1,10 @@
+.DS_Store
+logs
+build
+*.test
+*.out
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
