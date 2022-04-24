@@ -2,7 +2,9 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"rest-api/internal/apperror"
 	"rest-api/internal/user"
 	"rest-api/pkg/logging"
 
@@ -50,6 +52,9 @@ func (d *db) FindOne(ctx context.Context, id string) (u user.User, err error) {
 
 	result := d.collection.FindOne(ctx, bson.M{"_id": oID})
 	if result.Err() != nil {
+		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
+			return u, apperror.NotFoundError
+		}
 		return u, fmt.Errorf("MongoDB: Failed find user (id: %s).\n Error: %v", id, err)
 	}
 
@@ -104,7 +109,7 @@ func (d *db) Update(ctx context.Context, user user.User) error {
 	}
 
 	if result.MatchedCount == 0 {
-		return fmt.Errorf("Not Found 404")
+		return apperror.NotFoundError
 	}
 
 	d.logger.Tracef("MatchedCount: %d, modified: %d", result.MatchedCount, result.ModifiedCount)
@@ -125,7 +130,7 @@ func (d *db) Delete(ctx context.Context, id string) error {
 	}
 
 	if result.DeletedCount == 0 {
-		return fmt.Errorf("Not Found 404")
+		return apperror.NotFoundError
 	}
 
 	d.logger.Tracef("DeletedCount: %d.", result.DeletedCount)
