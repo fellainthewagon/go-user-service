@@ -24,6 +24,7 @@ type Config struct {
 		Port       string `yaml:"port"`
 		AtlasURI   string `yaml:"atlas_uri"`
 	} `yaml:"mongodb"`
+	SecretCrypto string `yaml:"secret_crypto"`
 }
 
 var instance *Config // singleton

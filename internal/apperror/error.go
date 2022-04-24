@@ -5,6 +5,7 @@ import (
 )
 
 var NotFoundError = NewAppError(nil, "Not Found", "", "0009")
+var BadRequestError = NewAppError(nil, "Bad Request", "", "0008")
 
 type AppError struct {
 	Err        error  `json:"-"`

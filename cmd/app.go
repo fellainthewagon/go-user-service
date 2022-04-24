@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 	"path/filepath"
 	"rest-api/internal/config"
 	"rest-api/internal/user"
+	"rest-api/internal/user/db"
+	"rest-api/pkg/client/mongodb"
 	"rest-api/pkg/logging"
 	"time"
 
@@ -23,18 +26,20 @@ func main() {
 
 	cfg := config.GetConfig()
 
-	// cfgMongo := cfg.MongoDB
-	// mDB, err := mongodb.NewClient(context.Background(), cfgMongo.AtlasURI,
-	// 	cfgMongo.Host, cfgMongo.Port, cfgMongo.Username, cfgMongo.Password,
-	// 	cfgMongo.Database, cfgMongo.AuthDB)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	cfgMongo := cfg.MongoDB
+	// TODO: перенести клиента сюда
+	mDB, err := mongodb.NewClient(context.Background(), cfgMongo.AtlasURI,
+		cfgMongo.Host, cfgMongo.Port, cfgMongo.Username, cfgMongo.Password,
+		cfgMongo.Database, cfgMongo.AuthDB)
+	if err != nil {
+		panic(err)
+	}
 
-	// userStorage := db.NewStorage(mDB, cfgMongo.Collection, logger)
+	userStorage := db.NewStorage(mDB, cfgMongo.Collection, logger)
+	userService := user.NewUserService(userStorage, logger)
 
 	logger.Info("Create User handler")
-	userHandler := user.NewHandler(logger)
+	userHandler := user.NewHandler(userService, logger)
 	userHandler.Register(router)
 
 	run(router, cfg)

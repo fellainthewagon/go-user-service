@@ -12,3 +12,4 @@ mongodb:
   host:
   port:
   atlas_uri:
+secret_crypto:

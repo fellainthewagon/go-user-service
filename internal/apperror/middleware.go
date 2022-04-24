@@ -20,6 +20,10 @@ func Middleware(h appHandler) http.HandlerFunc {
 					w.WriteHeader(http.StatusNotFound)
 					w.Write(NotFoundError.MarshalError())
 					break
+				case errors.Is(err, BadRequestError):
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write(BadRequestError.MarshalError())
+					break
 				default:
 					appError = err.(*AppError)
 
