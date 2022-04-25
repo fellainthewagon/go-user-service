@@ -7,6 +7,7 @@ import (
 	"rest-api/internal/apperror"
 	"rest-api/internal/handlers"
 	"rest-api/pkg/logging"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -55,8 +56,8 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	w.Write(userBytes)
-	w.WriteHeader(201)
 	return nil
 }
 
@@ -79,19 +80,74 @@ func (h *handler) GetAllUsers(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) error {
-	w.Write([]byte("All users list..."))
-	w.WriteHeader(200)
+	id, err := h.getUserId(r)
+	if err != nil {
+		return err
+	}
+
+	user, err := h.service.GetUser(context.TODO(), id)
+	if err != nil {
+		return err
+	}
+
+	userBytes, err := user.Marshal()
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(userBytes))
+
 	return nil
 }
 
 func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) error {
-	w.Write([]byte("All users list..."))
-	w.WriteHeader(200)
+	id, err := h.getUserId(r)
+	if err != nil {
+		return err
+	}
+
+	var dto UpdateUserDTO
+	dto.ID = id
+
+	err = json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		return apperror.BadRequestError
+	}
+
+	err = h.service.UpdateUser(context.TODO(), dto)
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+	w.Write(nil)
 	return nil
 }
 
 func (h *handler) DeleteUser(w http.ResponseWriter, r *http.Request) error {
-	w.Write([]byte("All users list..."))
-	w.WriteHeader(204)
+	id, err := h.getUserId(r)
+	if err != nil {
+		return err
+	}
+
+	err = h.service.DeleteUser(context.TODO(), id)
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+	w.Write(nil)
 	return nil
+}
+
+func (h *handler) getUserId(r *http.Request) (string, error) {
+	id := strings.TrimPrefix(r.URL.Path, "/users/")
+
+	if id == "" {
+		return "", apperror.BadRequestError
+	}
+
+	return id, nil
 }
