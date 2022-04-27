@@ -3,13 +3,19 @@ listen:
   type: port
   bind_ip: 0.0.0.0
   port: 5000
-mongodb:
-  username:
-  password:
-  database: user-service
-  collection: users
-  auth_db:
+secret_crypto:
+mongodb_config:
   host:
   port:
+  database: user-service
+  collection: users
+  username:
+  password:
+  auth_db:
   atlas_uri:
-secret_crypto:
+postgresql_config:
+  host: localhost
+  port: 5432
+  database: user-service
+  username: postgres
+  password: postgres

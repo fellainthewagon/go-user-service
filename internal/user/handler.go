@@ -55,7 +55,6 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(userBytes)
 	return nil
@@ -72,7 +71,6 @@ func (h *handler) GetAllUsers(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(usersBytes)
 
@@ -95,7 +93,6 @@ func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(userBytes))
 

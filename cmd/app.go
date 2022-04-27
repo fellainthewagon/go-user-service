@@ -11,7 +11,7 @@ import (
 	"rest-api/internal/config"
 	"rest-api/internal/user"
 	"rest-api/internal/user/db"
-	"rest-api/pkg/client/mongodb"
+	"rest-api/pkg/client/postgresql"
 	"rest-api/pkg/logging"
 	"time"
 
@@ -26,17 +26,27 @@ func main() {
 
 	cfg := config.GetConfig()
 
-	cfgMongo := cfg.MongoDB
-	// TODO: перенести клиента сюда
-	mDB, err := mongodb.NewClient(context.Background(), cfgMongo.AtlasURI,
-		cfgMongo.Host, cfgMongo.Port, cfgMongo.Username, cfgMongo.Password,
-		cfgMongo.Database, cfgMongo.AuthDB)
+	postgresqlClient, err := postgresql.NewClient(context.Background(), cfg.PostgreSQLConfig, 5)
 	if err != nil {
-		panic(err)
+		logger.Fatal(err)
 	}
 
-	userStorage := db.NewStorage(mDB, cfgMongo.Collection, logger)
-	userService := user.NewUserService(userStorage, logger)
+	// mongodbClient, err := mongodb.NewClient(context.Background(), cfg.MongoDBConfig)
+	// if err != nil {
+	// 	logger.Fatal(err)
+	// }
+
+	// defer func() {
+	// 	if err := mongodbClient.Disconnect(context.TODO()); err != nil {
+	// 	logger.Fatal(err)
+	// 	}
+	// }()
+
+	// mongoDatabase := mongodbClient.Database(cfg.MongoDBConfig.Database)
+	// userStorage := db.NewMongodbStorage(mongoDatabase, cfg.MongoDBConfig.Collection, logger)
+
+	userStorage2 := db.NewPostgresqlStorage(postgresqlClient, logger)
+	userService := user.NewUserService(userStorage2, logger)
 
 	logger.Info("Create User handler")
 	userHandler := user.NewHandler(userService, logger)
